@@ -1,0 +1,15 @@
+[package]
+name = "rust_os"
+version = "0.1.0"
+author = "Staninna"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+# Profiles used to build with stack unwinding on panic disabled (idk what is means)
+[profile.dev]
+panic = "abort"
+[profile.release]
+panic = "abort"
