@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD033 -->
+
 # RustOS
 
 ## Motivation
@@ -7,3 +9,9 @@ I was a few weeks back interested in how Operation Systems work under the hood s
 So, This is my attempt to write an Operation System in Rust, As you can see there is not much here yet, but I hope that will change soon.
 
 My source of information is [this amazing blog](https://os.phil-opp.com/) please give it a [star here](https://github.com/phil-opp/blog_os)
+
+## Screenshots
+
+The first boot on qemu
+
+<img src="images/first-boot.png" width="70%"/>
