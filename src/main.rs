@@ -9,6 +9,7 @@
 use core::panic::PanicInfo;
 
 // Import own files
+mod serial;
 mod vga_buffer;
 
 // Entry point, since the linker looks for a function
@@ -53,7 +54,7 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 // Main test function
 #[cfg(test)]
 fn run_tests(tests: &[&dyn Fn()]) {
-    println!("Running {} tests", tests.len());
+    serial_println!("Running {} tests", tests.len());
     for test in tests {
         test();
     }
@@ -64,7 +65,7 @@ fn run_tests(tests: &[&dyn Fn()]) {
 
 #[test_case]
 fn trivial_assertion() {
-    print!("trivial assertion... ");
+    serial_print!("trivial assertion... ");
     assert_eq!(1, 1);
-    println!("[ok]");
+    serial_println!("[ok]");
 }
