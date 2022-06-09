@@ -6,13 +6,19 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::run_tests)]
 #![reexport_test_harness_main = "test_main"]
+#![feature(abi_x86_interrupt)]
 
 // Imports
 use core::panic::PanicInfo;
 
 // Import own files
+pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
+
+pub fn init() {
+    interrupts::init_idt();
+}
 
 // Add the function to print to the serial for test functions
 pub trait Testable {
@@ -70,7 +76,12 @@ pub fn test_panic_handler(panic_info: &PanicInfo) -> ! {
 #[no_mangle]
 #[cfg(test)]
 pub extern "C" fn _start() -> ! {
+    // Load the Exception table
+    init();
+
+    // Run all tests
     test_main();
+
     loop {}
 }
 

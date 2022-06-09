@@ -17,9 +17,17 @@ use rust_os::println;
 pub extern "C" fn _start() -> ! {
     println!("Hello World!");
 
+    // Load the interrupt descriptor table
+    rust_os::init();
+
+    // Do a BREAKPOINT interruption to showcase
+    x86_64::instructions::interrupts::int3();
+
     #[cfg(test)]
     test_main();
 
+    // Print something after BREAKPOINT
+    println!("It did not crash");
     loop {}
 }
 
