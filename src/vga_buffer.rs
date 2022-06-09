@@ -164,3 +164,67 @@ pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
 }
+
+// Test functions
+
+// Test if print!() works
+#[test_case]
+fn test_print_once() {
+    print!("Morbi semper iaculis massa, et tempus tellus nunc");
+}
+
+// Test if println!() works
+#[test_case]
+fn test_println_once() {
+    println!("Nunc ut sapien varius, facilisis justo at egestas");
+}
+
+// Test if print!() works more than BUFFER_WIDTH length
+#[test_case]
+fn test_print_many_width() {
+    print!("Praesent pellentesque, purus ac pharetra eleifend, nunc massa dignissim turpis, consequat tincidunt");
+}
+
+// Test if println!() works more than BUFFER_WIDTH length
+#[test_case]
+fn test_println_many_width() {
+    println!("Aliquam eget justo eget nisl porttitor vehicula sed vitae massa. Sed at ex nulla. Morbi lobortis ac");
+}
+
+// Test if println!() works more than BUFFER_HEIGHT times
+#[test_case]
+fn test_print_many_height() {
+    for _ in 0..100 {
+        println!(" Morbi nec eros nunc. Pellentesque at blandit quis");
+    }
+}
+
+// Test if print!() works more than BUFFER_HEIGHT times
+#[test_case]
+fn test_println_many_height() {
+    for _ in 0..100 {
+        println!("Donec eu turpis elit. Nulla convallis risus morbi");
+    }
+}
+
+// Test if printed lines with print!() really appear on the screen
+#[test_case]
+fn test_print_output() {
+    let s = "Mauris iaculis, nisi ullamcorper tempus porttitor";
+    print!("\n{}", s); // add newline for next test
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 1][i].read();
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
+}
+
+// Test if printed lines with println!() really appear on the screen
+#[test_case]
+fn test_println_output() {
+    let s = "Donec eget elit non lacus mattis lobortis vivamus";
+    println!("\n{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
+}
