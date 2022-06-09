@@ -25,13 +25,23 @@ pub extern "C" fn _start() -> ! {
 }
 
 // Used to panic the OS
+#[cfg(not(test))]
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
+fn panic(panic_info: &PanicInfo) -> ! {
+    println!("{}", panic_info);
     loop {}
 }
 
 // Unit tests
+
+#[cfg(test)]
+#[panic_handler]
+fn panic(panic_info: &PanicInfo) -> ! {
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", panic_info);
+    exit_qemu(QemuExitCode::Failed);
+    loop {}
+}
 
 // Exit codes for qemu
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
