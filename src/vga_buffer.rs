@@ -35,11 +35,10 @@ pub enum Color {
     White = 15,
 }
 
-// Foreground and/or fore/background of ASCII text
+// Colors for character
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
 struct ColorCode(u8);
-
 impl ColorCode {
     fn new(foreground: Color, background: Color) -> Self {
         Self((background as u8) << 4 | (foreground as u8))
@@ -54,7 +53,7 @@ struct Character {
     color_code: ColorCode,
 }
 
-// The text buffer itself
+// The text buffer matrix we write into
 #[repr(transparent)]
 struct Buffer {
     // Just a matrix of Characters
@@ -69,7 +68,6 @@ pub struct Writer {
     color_code: ColorCode,
     buffer: &'static mut Buffer,
 }
-
 // The function that writes to the text buffer
 impl Writer {
     // Write a ASCII byte to the text buffer
@@ -129,8 +127,7 @@ impl Writer {
         }
     }
 }
-
-// Used to format integers and other types to the text buffer
+// Used to format integers and other types for the Writer
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
@@ -138,7 +135,7 @@ impl fmt::Write for Writer {
     }
 }
 
-// Add global writer for the text buffer
+// Add global writer for OS to use
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
@@ -149,13 +146,13 @@ lazy_static! {
 
 // Marcos
 
-// Add print macro globally
+// Add print!() macro globally
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
 }
 
-// Add println macro globally
+// Add println!() macro globally
 #[macro_export]
 macro_rules! println {
     () => ($crate::print!("\n"));
