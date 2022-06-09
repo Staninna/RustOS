@@ -33,7 +33,7 @@ fn panic(panic_info: &PanicInfo) -> ! {
 
 // Unit tests
 
-// The panic handler for testing when `cargo test` is run
+// The panic handler for testing when `cargo test`
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
