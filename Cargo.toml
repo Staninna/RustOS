@@ -7,7 +7,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bootloader = "0.9.22" # Use old version because don't get it to work otherwise :(
+bootloader = "0.9.22"
 lazy_static = {version = "1.4.0", features = ["spin_no_std"]}
 spin = "0.9.3"
 volatile = "0.3.0"
+
+[package.metadata.bootimage]
+test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"]

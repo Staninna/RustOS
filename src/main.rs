@@ -1,6 +1,9 @@
 // Exclude standard things for Rust
 #![no_std]
 #![no_main]
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::run_tests)]
+#![reexport_test_harness_main = "test_main"]
 
 // Imports
 use core::panic::PanicInfo;
@@ -12,67 +15,56 @@ mod vga_buffer;
 // named `_start` by default
 #[no_mangle] // Make function name not scrambled at compile time
 pub extern "C" fn _start() -> ! {
-    loop {
-        println!("We're no strangers to love");
-        println!("You know the rules and so do I (do I)");
-        println!("A full commitment's what I'm thinking of");
-        println!("You wouldn't get this from any other guy");
-        println!("I just wanna tell you how I'm feeling");
-        println!("Gotta make you understand");
-        println!("Never gonna give you up");
-        println!("Never gonna let you down");
-        println!("Never gonna run around and desert you");
-        println!("Never gonna make you cry");
-        println!("Never gonna say goodbye");
-        println!("Never gonna tell a lie and hurt you");
-        println!("We've known each other for so long");
-        println!("Your heart's been aching, but you're too shy to say it (say it)");
-        println!("Inside, we both know what's been going on (going on)");
-        println!("We know the game and we're gonna play it");
-        println!("And if you ask me how I'm feeling");
-        println!("Don't tell me you're too blind to see");
-        println!("Never gonna give you up");
-        println!("Never gonna let you down");
-        println!("Never gonna run around and desert you");
-        println!("Never gonna make you cry");
-        println!("Never gonna say goodbye");
-        println!("Never gonna tell a lie and hurt you");
-        println!("Never gonna give you up");
-        println!("Never gonna let you down");
-        println!("Never gonna run around and desert you");
-        println!("Never gonna make you cry");
-        println!("Never gonna say goodbye");
-        println!("Never gonna tell a lie and hurt you");
-        println!("We've known each other for so long");
-        println!("Your heart's been aching, but you're too shy to say it (to say it)");
-        println!("Inside, we both know what's been going on (going on)");
-        println!("We know the game and we're gonna play it");
-        println!("I just wanna tell you how I'm feeling");
-        println!("Gotta make you understand");
-        println!("Never gonna give you up");
-        println!("Never gonna let you down");
-        println!("Never gonna run around and desert you");
-        println!("Never gonna make you cry");
-        println!("Never gonna say goodbye");
-        println!("Never gonna tell a lie and hurt you");
-        println!("Never gonna give you up");
-        println!("Never gonna let you down");
-        println!("Never gonna run around and desert you");
-        println!("Never gonna make you cry");
-        println!("Never gonna say goodbye");
-        println!("Never gonna tell a lie and hurt you");
-        println!("Never gonna give you up");
-        println!("Never gonna let you down");
-        println!("Never gonna run around and desert you");
-        println!("Never gonna make you cry");
-        println!("Never gonna say goodbye");
-        println!("Never gonna tell a lie and hurt you");
-    }
+    println!("Hello World!");
+
+    #[cfg(test)]
+    test_main();
+
+    loop {}
 }
 
-//  Ued to panic the OS
+// Used to panic the OS
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     loop {}
+}
+
+// Unit tests
+
+// Exit codes for qemu
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub enum QemuExitCode {
+    Success = 0x10,
+    Failed = 0x11,
+}
+
+// Exit from qemu using exit codes
+pub fn exit_qemu(exit_code: QemuExitCode) {
+    use x86_64::instructions::port::Port;
+
+    unsafe {
+        let mut port = Port::new(0xf4);
+        port.write(exit_code as u32);
+    }
+}
+
+// Main test function
+#[cfg(test)]
+fn run_tests(tests: &[&dyn Fn()]) {
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
+
+    // When tests all ran successfully exit qemu
+    exit_qemu(QemuExitCode::Success);
+}
+
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
 }
