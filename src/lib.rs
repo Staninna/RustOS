@@ -1,4 +1,4 @@
-// A library mainly used for unit testing
+// A library mainly used for unit testing and exposing other things from rust files
 
 // File rules
 #![no_std]
