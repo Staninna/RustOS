@@ -1,3 +1,7 @@
+// A file the tests i thing that should panic
+// It is for now mostly just a example
+// This kind of test can only have one test per file because it panics
+
 // File rules
 #![no_std]
 #![no_main]
@@ -6,9 +10,8 @@
 use core::panic::PanicInfo;
 use rust_os::{exit_qemu, serial_print, serial_println, QemuExitCode};
 
-// Entry point, since the linker looks for a function
-// named `_start` by default
-#[no_mangle] // Make function name not scrambled at compile time
+// One of the starting points of the OS when whe are running unit tests
+#[no_mangle]
 pub extern "C" fn _start() -> ! {
     should_fail();
     serial_println!("[test did not panic]");

@@ -1,3 +1,6 @@
+// The VGA buffer is a special memory address that stores the data from the VGA VGA buffer
+// It is used to print text to the screen
+
 // Imports
 use core::fmt;
 use lazy_static::lazy_static;
@@ -6,7 +9,7 @@ use volatile::Volatile;
 
 // Constant variables
 
-// Dimensions of the text buffer size
+// Dimensions of the VGA buffer
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
@@ -53,24 +56,22 @@ struct Character {
     color_code: ColorCode,
 }
 
-// The text buffer matrix we write into
+// The VGA buffer matrix we write into
 #[repr(transparent)]
 struct Buffer {
-    // Just a matrix of Characters
     chars: [[Volatile<Character>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
-// Add function to the text buffer
-
-// The writer struct
+// The writer struct that
+// Add function to the VGA buffer
 pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
     buffer: &'static mut Buffer,
 }
-// The function that writes to the text buffer
+// The functions used to write into the VGA buffer
 impl Writer {
-    // Write a ASCII byte to the text buffer
+    // Write a ASCII byte with a color code to the VGA buffer
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
@@ -92,7 +93,7 @@ impl Writer {
         }
     }
 
-    // Write a whole string to the text buffer using write_byte
+    // Write a whole string to the VGA buffer using write_byte
     pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
@@ -104,7 +105,7 @@ impl Writer {
         }
     }
 
-    // Move every line up by one
+    // Move every line up by one  to make place for a new line
     fn new_line(&mut self) {
         for row in 1..BUFFER_HEIGHT {
             for col in 0..BUFFER_WIDTH {
@@ -116,7 +117,7 @@ impl Writer {
         self.column_position = 0;
     }
 
-    // Overwrite given row with whitespace
+    // Overwrite given row within th VGA buffer with space characters
     fn clear(&mut self, row: usize) {
         let blank = Character {
             ascii_character: b' ',
@@ -127,7 +128,7 @@ impl Writer {
         }
     }
 }
-// Used to format integers and other types for the Writer
+// Used to format integers and other types for the Writer struct
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
@@ -135,7 +136,8 @@ impl fmt::Write for Writer {
     }
 }
 
-// Add global writer for OS to use
+// Add global writer for OS to use to write to the screen
+// Here are also the default colors defined
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
@@ -146,20 +148,20 @@ lazy_static! {
 
 // Marcos
 
-// Add print!() macro globally
+// Print a formatted string without a new line
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
 }
 
-// Add println!() macro globally
+// Print a formatted string with a new line
 #[macro_export]
 macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 
-// Used in macros to actually write to the text buffer
+// Used in macros to actually write to the VGA buffer
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();

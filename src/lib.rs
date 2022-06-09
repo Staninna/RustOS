@@ -1,3 +1,5 @@
+// A library mainly used for unit testing
+
 // File rules
 #![no_std]
 #![cfg_attr(test, no_main)]
@@ -12,7 +14,7 @@ use core::panic::PanicInfo;
 pub mod serial;
 pub mod vga_buffer;
 
-// Add automatically printing for test functions
+// Add the function to print to the serial for test functions
 pub trait Testable {
     fn run(&self) -> ();
 }
@@ -27,6 +29,7 @@ where
     }
 }
 
+// The exit codes we could give qemu to exit the OS while running tests
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum QemuExitCode {
@@ -34,6 +37,8 @@ pub enum QemuExitCode {
     Failed = 0x11,
 }
 
+// Will exit qemu with the given exit code
+// Used while testing to automatically exit on failure or success
 pub fn exit_qemu(exit_code: QemuExitCode) {
     use x86_64::instructions::port::Port;
 
@@ -43,6 +48,7 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     }
 }
 
+// The function that runs all the tests for the OS to check if everything is still working
 pub fn run_tests(tests: &[&dyn Testable]) {
     serial_println!("Running {} tests", tests.len());
     for test in tests {
@@ -51,24 +57,27 @@ pub fn run_tests(tests: &[&dyn Testable]) {
     exit_qemu(QemuExitCode::Success);
 }
 
-pub fn test_panic_handler(info: &PanicInfo) -> ! {
+// The function that actually handles the panics
+// It needs to be here because we are using it in other files to so it needs to be public
+pub fn test_panic_handler(panic_info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
-    serial_println!("Error: {}\n", info);
+    serial_println!("Error: {}\n", panic_info);
     exit_qemu(QemuExitCode::Failed);
     loop {}
 }
 
-// Entry point, since the linker looks for a function
-// named `_start` by default
-#[no_mangle] // Make function name not scrambled at compile time
+// One of the starting points of the OS when whe are running unit tests
+#[no_mangle]
 #[cfg(test)]
 pub extern "C" fn _start() -> ! {
     test_main();
     loop {}
 }
 
+// The panic handler when we are testing the OS with unit tests
+// It runs the actual panic handler
 #[cfg(test)]
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    test_panic_handler(info)
+fn panic(panic_info: &PanicInfo) -> ! {
+    test_panic_handler(panic_info)
 }

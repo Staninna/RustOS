@@ -1,3 +1,6 @@
+// The starting point of the OS `_start()` lives here
+// It is getting loaded by the bootloader we use
+
 // File rules
 #![no_std]
 #![no_main]
@@ -9,9 +12,8 @@
 use core::panic::PanicInfo;
 use rust_os::println;
 
-// Entry point, since the linker looks for a function
-// named `_start` by default
-#[no_mangle] // Make function name not scrambled at compile time
+// Starting point of the OS
+#[no_mangle]
 pub extern "C" fn _start() -> ! {
     println!("Hello World!");
 
@@ -31,6 +33,7 @@ fn panic(panic_info: &PanicInfo) -> ! {
 
 // Unit tests
 
+// The panic handler for testing when `cargo test` is run
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {

@@ -1,3 +1,6 @@
+// Serial port allow the kernel to connect to host machine
+// This is mostly used for debugging and testing the OS
+
 // Imports
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -14,7 +17,7 @@ lazy_static! {
 
 // Macros
 
-// Allows the macros to work
+// Used in macros to actually write to the serial port
 pub fn _print(args: ::core::fmt::Arguments) {
     use core::fmt::Write;
     SERIAL1
@@ -23,7 +26,7 @@ pub fn _print(args: ::core::fmt::Arguments) {
         .expect("Printing to serial failed");
 }
 
-// Prints to the host stdout
+// Print a formatted string to the host stdout without a new line
 #[macro_export]
 macro_rules! serial_print {
     ($($arg:tt)*) => {
@@ -31,7 +34,7 @@ macro_rules! serial_print {
     };
 }
 
-// Prints to the host stdout with \n
+// Print a formatted string to the host stdout with a new line
 #[macro_export]
 macro_rules! serial_println {
     () => ($crate::serial_print!("\n"));

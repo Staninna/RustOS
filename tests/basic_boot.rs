@@ -1,3 +1,6 @@
+// A file that tests some things for basic booting
+// For example if the println!() and print!() works after boot because the panic handler relies on it
+
 // File rules
 #![no_std]
 #![no_main]
@@ -9,9 +12,8 @@
 use core::panic::PanicInfo;
 use rust_os::{print, println};
 
-// Entry point, since the linker looks for a function
-// named `_start` by default
-#[no_mangle] // Make function name not scrambled at compile time
+// One of the starting points of the OS when whe are running unit tests
+#[no_mangle]
 pub extern "C" fn _start() -> ! {
     test_main();
 
